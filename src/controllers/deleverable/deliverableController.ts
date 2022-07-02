@@ -2,6 +2,9 @@ import { Deliverable } from "../../models";
 import { FacultyStudentRelationship } from "../../models";
 import { BadRequest } from "../../utils/errors";
 import * as DeliverableService from "../../services/deliverable/deliverableService";
+import EvaluatorTeam from "../../models/EvaluatorTeam";
+import { Submitterd_deliverable } from "../../models";
+
 
 
 export const addDeleiverable = async (req: any, res: any, next: any) => {
@@ -56,9 +59,45 @@ export const getAllDeliverablesByFacultyId = async (
   res: any,
   next: any
 ) => {
-  let fId = req.params.id;
-  const allDeliverables = await Deliverable.find({ faculty_id: fId });
-  res.send(allDeliverables);
+  let id = req.params.id;
+  console.log("The incomign id has", id);
+
+
+  // Getting all the records array
+  const allData = await EvaluatorTeam.find({});
+
+  let students: string[] = [];
+
+  // Checking if the emply exists in each record and getting all the ids of the students from there
+  Promise.all(
+    allData.map(async (items) => {
+
+      // console.log("each item has", items);
+      let faculty: string[] = [];
+      faculty = items.faculty;
+      // console.log("The faculty has", faculty);
+
+      if (faculty.includes(id)) {
+        // console.log("includes", items);
+        // Getting all students id
+        const groups = items.group;
+        groups.forEach(student => {
+          // console.log("The student has", student);
+          students.push(student);
+
+        })
+      }
+    })
+  )
+
+  // console.log("students ids", students);
+
+  //Getting the each student record from submitted deliverables
+  const studentsDeliverabels = await Submitterd_deliverable.find({ student_ID: { $in: students } });
+  console.log("All the students submitted deliverabels are ", studentsDeliverabels);
+
+  // res.send({ message: `Deliverable successfully updated!`, data:studentsDeliverabels });
+
 };
 
 export const deleteDeliverbles = async (req: any, res: any, next: any) => {

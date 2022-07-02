@@ -4,7 +4,7 @@ import { BadRequest } from "../../utils/errors";
 import { NotFound } from "../../utils/errors";
 
 export const addSubmittedDeleiverable = async (
-  req: any,
+  req:any,
   res: any,
   next: any
 ) => {
